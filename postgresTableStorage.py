@@ -21,6 +21,7 @@ class Books(base):
 
 
 class PostgresTableStorage(Interface):
+    data = []
 
     def create(self, **kwargs):
         self.new_book = Books(books_id=kwargs['id'], author=kwargs['author'], title=kwargs['title'])
@@ -32,18 +33,24 @@ class PostgresTableStorage(Interface):
         if len(kwargs) > 1:
             for book in books:
                 if book.title == kwargs['title'] and book.author == kwargs['author']:
-                    print({'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title})
+                    val = {'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title}
+                    self.data.append(val)
+            return self.data
 
         else:
             val = [x for x in kwargs.values()][0]
             for book in books:
                 if book.books_id == val or book.author == val:
-                    print({'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title})
+                    val = {'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title}
+                    self.data.append(val)
+            return self.data
 
     def all(self):
         books = session.query(Books)
         for book in books:
-            print({'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title})
+            val = {'id': book.id, 'books_id': book.books_id, 'author': book.author, 'title': book.title}
+            self.data.append(val)
+        return self.data
 
     def delete(self, **kwargs):
         # poi_to_delete = session.query(Books).filter(Books.books_id == 8).first()
@@ -52,17 +59,14 @@ class PostgresTableStorage(Interface):
             for x in poi_to_delete:
                 if x.author == kwargs['author'] and x.title == kwargs['title']:
                     session.delete(x)
+                    self.data.append(x.books_id)
                     session.commit()
+            return self.data
         else:
             val = [x for x in kwargs.values()][0]
             for x in poi_to_delete:
                 if x.books_id == val or x.author == val:
                     session.delete(x)
+                    self.data.append(x.books_id)
                     session.commit()
-
-
-
-
-
-
-
+            return self.data
